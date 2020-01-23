@@ -13,7 +13,7 @@ const (
 	inputSize = 20
 )
 
-// Timelock encrypt plaintext data using a simple (as-of-yet unproven, probably
+// Timelock encrypts plaintext data using a simple (as-of-yet unproven, probably
 // totally insecure) time-lock encryption mechanism.
 func Timelock(plaintext []byte, n, complexity int) [][]byte {
 	input := generateRandom(inputSize)
