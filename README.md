@@ -34,7 +34,8 @@ Remarks:
 - Solution complexity / time-bounds determined by chosen _one-way function_, _number of iterations of one-way function_, _number of iterations of interim values_.
 - Massive parallelism mitigated by linearizing solving capability by creating many iterations (of interim values). Each iteration relies on the previous iteration's result for both _key material_ and _associative data_.
 - Unhashed `?input` as _associative data_ to prevent skipping hashing challenge and tackling decryption directly. (If you know the _key_, you also know the _associative data_.)  
-  > It is outside of the model how the associated-dataHis made known tothe receiver.  We do not consider the associated-data to be part of the ciphertext, though the receiver will need it in order to decrypt.
+  > It is outside of the model how the associated-dataHis made known tothe receiver.  We do not consider the associated-data to be part of the ciphertext, though the receiver will need it in order to decrypt.  
+  -- [Phillip Rogaway][AEAD-paper], 20 September 2002
 
   Seems to suggest that indeed `AD` is a necessary component for decryption.
 - Start _sha256_ hash-content with puzzle component, one cannot reuse "prehashed input". (puzzle component is the variable)
@@ -57,6 +58,7 @@ Material for on-the-fly learning of cryptographic concepts: (seriously, I'm most
 - https://en.wikipedia.org/wiki/Authenticated_encryption
 - https://blog.cryptographyengineering.com/2012/05/19/how-to-choose-authenticated-encryption/
 - https://web.cs.ucdavis.edu/~rogaway/papers/ad.pdf (needed to check up on security guarantee for "associated data", i.e. needed to confirm that "associated data" is a necessary component for decryption)
+- https://tools.ietf.org/html/rfc5116
 
 The following references were inspiration to this custom solution.
 
@@ -65,3 +67,5 @@ The following references were inspiration to this custom solution.
 References still to read:
 
 - http://people.seas.harvard.edu/~salil/research/timelock.pdf
+
+[AEAD-paper]: https://web.cs.ucdavis.edu/~rogaway/papers/ad.pdf "Authenticated-Encryption with Associated-Data - Phillip Rogaway"
