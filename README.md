@@ -14,41 +14,59 @@ These are implementation notes stating mostly arbitrary choices as this is an ar
 
 Functions:
 
-- _AEAD_(plaintext, associated data, key, __nonce__)
+- _AEAD_(plaintext, associated data, key, __nonce__), in this case AES-256-GCM.
 - _sha256_(input)
-- _`puzzle`_ indicates unknown "puzzle" value of certain length, with length contributing to difficulty to guess, i.e. puzzle complexity.
-- `?input` = _sha256_(_`puzzle`_, input)
+- _`🧩`_ indicates unknown "puzzle" value of certain length, with length contributing to difficulty to guess, i.e. puzzle complexity.
+- `🧩input` = _sha256_(_`🧩`_, input)
 
 Given:
 
-Each _interim`N`_ represents an iteration. Each iteration relies on the result of the previous iteration.
+Each _milestone`N`_ represents an iteration in encrypted form. Each iteration relies on the result of the previous iteration. Any number of iterations can be used.
 
 - __input1__
-- __interim1__ = _AEAD_(`input2`, `?input1`, _sha256_(`?input1`), __nonce1__)
-- __interim2__ = _AEAD_(`input3`, `?input2`, _sha256_(`?input2`), __nonce2__)
-- __interim3__ = _AEAD_(`secretKey`, `?input3`, _sha256_(`?input3`), __nonce3__)
-- __ciphertext__ = _AEAD_(__plaintext__, _NIL_, `secretKey`, __nonce4__)
+- __milestone1__ = _AEAD_(`input2`, `🧩input1`, _sha256_(`🧩input1`), __nonce1__)
+- __milestone2__ = _AEAD_(`input3`, `🧩input2`, _sha256_(`🧩input2`), __nonce2__)
+- __milestone3__ = _AEAD_(`secretKey`, `🧩input3`, _sha256_(`🧩input3`), __nonce3__)
+- __ciphertext__ = _AEAD_(`plaintext`, _NIL_, `secretKey`, __nonce4__)
 
 Remarks:
 
-- Solution complexity / time-bounds determined by chosen _one-way function_, _number of iterations of one-way function_, _number of iterations of interim values_.
-- Massive parallelism mitigated by linearizing solving capability by creating many iterations (of interim values). Each iteration relies on the previous iteration's result for both _key material_ and _associative data_.
-- Unhashed `?input` as _associative data_ to prevent skipping hashing challenge and tackling decryption directly. (If you know the _key_, you also know the _associative data_.)  
-  > It is outside of the model how the associated-dataHis made known tothe receiver.  We do not consider the associated-data to be part of the ciphertext, though the receiver will need it in order to decrypt.  
+- Rationale:
+  - `TODO: write down rationale`
+  - `TODO: Is there any benefit to having the actual plaintext payload independent of the chain of iterations?`
+- Time-component realized through assumed average guessing time for puzzle component (`n` number of bytes of random data).
+- Solution complexity / time-bounds determined by chosen _one-way function_, _number of iterations of one-way function_, _number of iterations of milestone values_.
+- Massive parallelism mitigated by serializing solving capability by creating many iterations (of milestone values). Each iteration relies on the previous iteration's result for both _key material_ and _associative data_.
+- As chained milestones each contain random byte-array being a key, it is hard to determine by statistical analysis whether or not decryption key is correctly guessed. Relies on _authentication tag_ for confirmation of correct decryption. _Authentication tag_ is obfuscated through _associated data_. _Associated data_ is _hash input_, hence you need to know both hashed value used for decryption and original pre-image used for hashing. So 2 necessary parts for decryption:
+  - symmetric key, to decrypt content.
+  - associated data, to confirm of decryption result.
+- Unhashed `?input` as _associative data_:
+  - to prevent skipping hashing challenge and tackling decryption directly. (If you know the _key_, you also know the _associative data_.)
+    > It is outside of the model how the associated-data is made known to the receiver. We do not consider the associated-data to be part of the ciphertext, though the receiver will need it in order to decrypt.  
   -- [Phillip Rogaway][AEAD-paper], 20 September 2002
-
-  Seems to suggest that indeed `AD` is a necessary component for decryption.
+  
+    Seems to suggest that indeed `AD` is a necessary component for decryption.
+  - to prevent _2nd pre-image_ attacks, as the original hash input needs to be known.  
 - Start _sha256_ hash-content with puzzle component, one cannot reuse "prehashed input". (puzzle component is the variable)
-- `O(1)` for creator, as he can define puzzle components. `O(avg-hashing-time-to-find-puzzle-component)` for solver, as he needs to try out every byte-combination.
+- `O(1)` for creator, as he can choose the puzzle components.  
+  `O(avg-hashing-time-to-find-puzzle-component)` for solver, as he needs to rediscover the same puzzle components, e.g. try out every byte-combination.
 - Choices of one-way function, AEAD cipher, etc. are arbitrary choices atm based on what is readily available in Go standard library.
+- Individual milestone inputs can be released at will, in order to progress decryption effort.
 - ...
 
 ## TODO
 
+- Actual secret data is not associated with last milestone, is there any value in doing so?
+- Theoretical questions:
+  - Investigate if lengths of all values in use are acceptable in real-world scenarios. Are we crossing any boundaries/limits that violate cryptography rules?
+  - Investigate whether using "hash input" as associated data might reveal any information on the "hash input". (To what extent is associated data recoverable from the ciphertext?)
+  - How is this approach different from chained hashes? Each milestone can be solved with a single correctly guessed solution, so in theory can be solved very quickly. How is this different for chained hashes?
+  - Confirm: AEAD is guaranteed to use AD to "obfuscate" authentication tag?
 - Write document explaining, detailing the mechanism.
   - look up actual terminology instead of own made-up stuff ...
+  - increasing complexity with each iteration.
+  - different types of hardness by choice of one-way function (cpu-bound, memory-bound, ...) (As described in [article](https://www.gwern.net/Self-decrypting-files))
 - Fine-tune implementation to make it actually useable.
-- Investigate if lengths of all values in use are acceptable in real-world scenarios. Are we crossing any boundaries/limits that violate cryptography rules?
 - See if we can prove this: https://tamarin-prover.github.io/
 
 ## References
