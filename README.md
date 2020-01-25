@@ -27,11 +27,12 @@ Each _milestone`N`_ represents an iteration in encrypted form. Each iteration re
 - __milestone1__ = _AEAD_(`input2`, `🧩input1`, _sha256_(`🧩input1`), __nonce1__)
 - __milestone2__ = _AEAD_(`input3`, `🧩input2`, _sha256_(`🧩input2`), __nonce2__)
 - __milestone3__ = _AEAD_(`secretKey`, `🧩input3`, _sha256_(`🧩input3`), __nonce3__)
-- __ciphertext__ = _AEAD_(`plaintext`, _NIL_, `secretKey`, __nonce4__)
+- __ciphertext__ = _AEAD_(`plaintext`, `🧩input3`, `secretKey`, __nonce4__)
 
 Remarks:
 
 - Rationale:
+  - Follow the path of puzzles for a reasonable chance to beat decryption, or attempt to decrypt the ciphertext immediately facing maximum difficulty.
   - `TODO: write down rationale`
   - `TODO: Is there any benefit to having the actual plaintext payload independent of the chain of iterations?`
 - Time-component realized through assumed average guessing time for puzzle component (`n` number of bytes of random data).

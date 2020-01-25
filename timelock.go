@@ -17,7 +17,7 @@ const (
 // totally insecure) time-lock encryption mechanism.
 func Timelock(plaintext []byte, n, complexity int) [][]byte {
 	input := generateRandom(inputSize)
-	os.Stdout.WriteString(fmt.Sprintf("Input: %0x\n", input))
+	os.Stdout.WriteString(fmt.Sprintf("%0x\n", input))
 
 	var associated []byte
 	var key [32]byte
@@ -30,7 +30,7 @@ func Timelock(plaintext []byte, n, complexity int) [][]byte {
 
 		input = generateRandom(inputSize)
 		interim, nonce := sealPayload(input, associated, key)
-		os.Stdout.WriteString(fmt.Sprintf("Nonce %d: %0x interim %d: %0x\n", i, nonce, i, interim))
+		os.Stdout.WriteString(fmt.Sprintf("%0x %0x\n", nonce, interim))
 		os.Stderr.WriteString(fmt.Sprintf("KEEP SECRET: Puzzle %d: %0x input %d: %0x\n", i, puzzle, i, input))
 	}
 
@@ -40,26 +40,25 @@ func Timelock(plaintext []byte, n, complexity int) [][]byte {
 	key = sha256.Sum256(associated)
 	secretKey := generateKey()
 	lastInterim, secretKeyNonce := sealPayload(secretKey[:], associated, key)
-	os.Stdout.WriteString(fmt.Sprintf("Nonce %d: %0x interim %d: %0x\n", n-1, secretKeyNonce, n-1, lastInterim))
+	os.Stdout.WriteString(fmt.Sprintf("%0x %0x\n", secretKeyNonce, lastInterim))
 	os.Stderr.WriteString(fmt.Sprintf("KEEP SECRET: Puzzle %d: %0x\n", n-1, puzzle))
 
 	// sealing away the actual plaintext
-	// FIXME should we find some associated data such that it is linked to the last time-lock iteration?
-	ciphertext, nonce := sealPayload(plaintext, nil, secretKey)
+	ciphertext, nonce := sealPayload(plaintext, associated, secretKey)
 
-	os.Stdout.WriteString(fmt.Sprintf("Nonce: %0x ciphertext: %0x\n", nonce, ciphertext))
+	os.Stdout.WriteString(fmt.Sprintf("%0x %0x\n", nonce, ciphertext))
 
 	return nil
 }
 
 func sealPayload(plaintext, associatedData []byte, key [32]byte) ([]byte, [12]byte) {
-	aead := newAes256AEAD(key)
+	aead := newAes256GCM(key)
 	nonce := generateNonce()
 	sealed := aead.Seal(nil, nonce[:], plaintext, associatedData)
 	return sealed, nonce
 }
 
-func newAes256AEAD(key [32]byte) cipher.AEAD {
+func newAes256GCM(key [32]byte) cipher.AEAD {
 	blockcipher, err := aes.NewCipher(key[:])
 	requireSuccess(err, "failed to construct AES block cipher")
 	aead, err := cipher.NewGCM(blockcipher)
