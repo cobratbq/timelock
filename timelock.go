@@ -7,6 +7,9 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"os"
+
+	"github.com/cobratbq/goutils/std/builtin"
+	"github.com/cobratbq/goutils/std/errors"
 )
 
 const (
@@ -60,44 +63,32 @@ func sealPayload(plaintext, associatedData []byte, key [32]byte) ([]byte, [12]by
 
 func newAes256GCM(key [32]byte) cipher.AEAD {
 	blockcipher, err := aes.NewCipher(key[:])
-	requireSuccess(err, "failed to construct AES block cipher")
+	errors.RequireSuccess(err, "failed to construct AES block cipher")
 	aead, err := cipher.NewGCM(blockcipher)
-	requireSuccess(err, "failed to construct AES-based AEAD cipher")
+	errors.RequireSuccess(err, "failed to construct AES-based AEAD cipher")
 	return aead
 }
 
 func generateKey() [32]byte {
 	var value [32]byte
 	n, err := rand.Read(value[:])
-	requireSuccess(err, "failure while generating random bytes for key")
-	require(n == len(value), "Failed to read sufficient random data")
+	errors.RequireSuccess(err, "failure while generating random bytes for key")
+	builtin.Require(n == len(value), "Failed to read sufficient random data")
 	return value
 }
 
 func generateNonce() [12]byte {
 	var value [12]byte
 	n, err := rand.Read(value[:])
-	requireSuccess(err, "failure while generating random bytes for nonce")
-	require(n == len(value), "Failed to read sufficient random data")
+	errors.RequireSuccess(err, "failure while generating random bytes for nonce")
+	builtin.Require(n == len(value), "Failed to read sufficient random data")
 	return value
 }
 
 func generateRandom(size int) []byte {
 	data := make([]byte, size)
 	n, err := rand.Read(data)
-	requireSuccess(err, "failed to read random data")
-	require(n == size, "Failed to read sufficient random data")
+	errors.RequireSuccess(err, "failed to read random data")
+	builtin.Require(n == size, "Failed to read sufficient random data")
 	return data
-}
-
-func requireSuccess(err error, message string) {
-	if err != nil {
-		panic("Fatal: " + message + ": " + err.Error())
-	}
-}
-
-func require(condition bool, message string) {
-	if !condition {
-		panic("Fatal: " + message)
-	}
 }
