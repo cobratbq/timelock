@@ -3,12 +3,11 @@ package timelock
 import (
 	"crypto/aes"
 	"crypto/cipher"
-	"crypto/rand"
 	"crypto/sha256"
 	"fmt"
 	"os"
 
-	"github.com/cobratbq/goutils/std/builtin"
+	"github.com/cobratbq/goutils/std/crypto/rand"
 	"github.com/cobratbq/goutils/std/errors"
 )
 
@@ -71,24 +70,16 @@ func newAes256GCM(key [32]byte) cipher.AEAD {
 
 func generateKey() [32]byte {
 	var value [32]byte
-	n, err := rand.Read(value[:])
-	errors.RequireSuccess(err, "failure while generating random bytes for key")
-	builtin.Require(n == len(value), "Failed to read sufficient random data")
+	rand.MustReadBytes(value[:])
 	return value
 }
 
 func generateNonce() [12]byte {
 	var value [12]byte
-	n, err := rand.Read(value[:])
-	errors.RequireSuccess(err, "failure while generating random bytes for nonce")
-	builtin.Require(n == len(value), "Failed to read sufficient random data")
+	rand.MustReadBytes(value[:])
 	return value
 }
 
 func generateRandom(size int) []byte {
-	data := make([]byte, size)
-	n, err := rand.Read(data)
-	errors.RequireSuccess(err, "failed to read random data")
-	builtin.Require(n == size, "Failed to read sufficient random data")
-	return data
+	return rand.RandomizeBytes(make([]byte, size))
 }

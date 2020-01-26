@@ -1,2 +1,4 @@
-github.com/cobratbq/goutils v0.0.0-20200125225454-a8a3229a2f99 h1:8K3kxVcoHK+qgINm/WaaPbD0oC3MCouiA+ge62ByyiE=
-github.com/cobratbq/goutils v0.0.0-20200125225454-a8a3229a2f99/go.mod h1:mez72GoFhK6yia9KYon4XjM2HEmFG8ieK9ipzY2oVI0=
+github.com/cobratbq/goutils v0.0.0-20200125233342-a608be727f2b h1:ZSmk4OIIFWg0TrE4YFiXY8+klzAX3igf6k4exicsGM0=
+github.com/cobratbq/goutils v0.0.0-20200125233342-a608be727f2b/go.mod h1:mez72GoFhK6yia9KYon4XjM2HEmFG8ieK9ipzY2oVI0=
+github.com/cobratbq/goutils v0.0.0-20200125235032-b4458395a6f3 h1:p8+YF1U6NprMFj2OIl8SC6NViO8sKzwlMtsxtBOXQA4=
+github.com/cobratbq/goutils v0.0.0-20200125235032-b4458395a6f3/go.mod h1:mez72GoFhK6yia9KYon4XjM2HEmFG8ieK9ipzY2oVI0=
