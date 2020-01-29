@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/cobratbq/goutils/std/builtin"
 	"github.com/cobratbq/goutils/std/crypto/rand"
-	"github.com/cobratbq/goutils/std/errors"
 )
 
 const (
@@ -62,9 +62,9 @@ func sealPayload(plaintext, associatedData []byte, key [32]byte) ([]byte, [12]by
 
 func newAes256GCM(key [32]byte) cipher.AEAD {
 	blockcipher, err := aes.NewCipher(key[:])
-	errors.RequireSuccess(err, "failed to construct AES block cipher")
+	builtin.RequireSuccess(err, "failed to construct AES block cipher")
 	aead, err := cipher.NewGCM(blockcipher)
-	errors.RequireSuccess(err, "failed to construct AES-based AEAD cipher")
+	builtin.RequireSuccess(err, "failed to construct AES-based AEAD cipher")
 	return aead
 }
 

@@ -10,7 +10,6 @@ import (
 	"os"
 
 	"github.com/cobratbq/goutils/std/builtin"
-	"github.com/cobratbq/goutils/std/errors"
 )
 
 func main() {
@@ -27,13 +26,13 @@ func main() {
 	builtin.Require(len(*flagSolution) > 0, "Please provide solution.")
 
 	input, err := hex.DecodeString(*flagInput)
-	errors.RequireSuccess(err, "Iteration input is invalid")
+	builtin.RequireSuccess(err, "Iteration input is invalid")
 	nonce, err := hex.DecodeString(*flagNonce)
-	errors.RequireSuccess(err, "Iteration nonce is invalid")
+	builtin.RequireSuccess(err, "Iteration nonce is invalid")
 	ciphertext, err := hex.DecodeString(*flagCiphertext)
-	errors.RequireSuccess(err, "Iteration ciphertext is invalid")
+	builtin.RequireSuccess(err, "Iteration ciphertext is invalid")
 	solution, err := hex.DecodeString(*flagSolution)
-	errors.RequireSuccess(err, "Iteration solution is invalid")
+	builtin.RequireSuccess(err, "Iteration solution is invalid")
 
 	associated := append(solution, input...)
 	var key []byte
@@ -42,13 +41,13 @@ func main() {
 		key = hashed[:]
 	} else {
 		key, err = hex.DecodeString(*flagKey)
-		errors.RequireSuccess(err, "Failed to decode decryption key.")
+		builtin.RequireSuccess(err, "Failed to decode decryption key.")
 	}
 	blockcipher, err := aes.NewCipher(key)
-	errors.RequireSuccess(err, "Failed to construct AES block cipher")
+	builtin.RequireSuccess(err, "Failed to construct AES block cipher")
 	aead, err := cipher.NewGCM(blockcipher)
-	errors.RequireSuccess(err, "Failed to construct AEAD cipher")
+	builtin.RequireSuccess(err, "Failed to construct AEAD cipher")
 	plaintext, err := aead.Open(nil, nonce, ciphertext, associated)
-	errors.RequireSuccess(err, "Failed to decrypt ciphertext")
+	builtin.RequireSuccess(err, "Failed to decrypt ciphertext")
 	os.Stderr.WriteString(fmt.Sprintf("Result: %s\n", string(plaintext)))
 }
