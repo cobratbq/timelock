@@ -10,3 +10,7 @@ unlock: library
 .PHONY: library
 library:
 	go build ./...
+
+.PHONY: clean
+clean:
+	rm timelock unlock
